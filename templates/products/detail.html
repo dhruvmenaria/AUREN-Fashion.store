@@ -1,0 +1,256 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} — AUREN Fashion{% endblock %}
+{% block meta_description %}{{ product.description|truncatewords:20 }}{% endblock %}
+
+{% block content %}
+<div class="product-detail-page py-5 mt-5">
+  <div class="container">
+    <!-- Breadcrumbs -->
+    <div class="detail-breadcrumbs" id="detailBreadcrumbs">
+      <a href="{% url 'products:home' %}">Home</a>
+      <span class="mx-2"><i class="fa-solid fa-chevron-right fs-xs text-muted"></i></span>
+      <a href="{% url 'products:shop' %}">Shop</a>
+      <span class="mx-2"><i class="fa-solid fa-chevron-right fs-xs text-muted"></i></span>
+      <a href="{% url 'products:shop' %}?category={{ product.category.slug }}">{{ product.category.name }}</a>
+      <span class="mx-2"><i class="fa-solid fa-chevron-right fs-xs text-muted"></i></span>
+      <span class="text-dark">{{ product.name }}</span>
+    </div>
+
+    <!-- Product Layout -->
+    <div class="row g-5">
+      <!-- Left Column: Gallery -->
+      <div class="col-lg-6 fade-in-left">
+        <div class="product-gallery">
+          <!-- Main Image -->
+          <div class="detail-gallery-main" id="mainGalleryWrapper">
+            {% if product.primary_image %}
+              <img src="{{ product.primary_image.get_image_url }}" alt="{{ product.name }}" id="mainGalleryImg">
+            {% else %}
+              <img src="{% static 'img/products/casual-stripe-shirt-fit.jpg' %}" alt="{{ product.name }}" id="mainGalleryImg">
+            {% endif %}
+          </div>
+
+          <!-- Thumbnails -->
+          {% if images.count > 1 or not product.primary_image %}
+          <div class="detail-gallery-thumbnails" id="galleryThumbs">
+            {% if images %}
+              {% for img in images %}
+              <div class="detail-thumb {% if img.is_primary %}active{% endif %}" data-large="{{ img.get_image_url }}">
+                <img src="{{ img.get_image_url }}" alt="{{ product.name }} View {{ forloop.counter }}">
+              </div>
+              {% endfor %}
+            {% else %}
+              <div class="detail-thumb active" data-large="{% static 'img/products/casual-stripe-shirt-fit.jpg' %}">
+                <img src="{% static 'img/products/casual-stripe-shirt-fit.jpg' %}" alt="{{ product.name }}">
+              </div>
+              <div class="detail-thumb" data-large="{% static 'img/products/old-money-leather-jacket.jpg' %}">
+                <img src="{% static 'img/products/old-money-leather-jacket.jpg' %}" alt="{{ product.name }} Angle 2">
+              </div>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Right Column: Info & Form -->
+      <div class="col-lg-6 fade-in-right">
+        <div class="detail-info">
+          <span class="detail-category">{{ product.category.name }}</span>
+          <h1 class="detail-name">{{ product.name }}</h1>
+
+          <!-- Price -->
+          <div class="detail-price-box">
+            {% if product.is_on_sale %}
+              <span class="price-sale">₹{{ product.sale_price }}</span>
+              <span class="price-original">₹{{ product.price }}</span>
+            {% else %}
+              <span class="price-regular">₹{{ product.price }}</span>
+            {% endif %}
+          </div>
+
+          <!-- Description -->
+          <div class="detail-description">
+            <p>{{ product.description }}</p>
+          </div>
+
+          <!-- Selection Form -->
+          <form method="post" action="{% url 'cart:add_to_cart' product.id %}" id="addToCartForm">
+            {% csrf_token %}
+            
+            <!-- Size Selector -->
+            <div class="detail-size-select">
+              <div class="detail-size-title d-flex justify-content-between align-items-center">
+                <span>Select Size</span>
+                <a href="#" class="detail-size-chart-link" data-bs-toggle="modal" data-bs-target="#sizeChartModal">Size Guide</a>
+              </div>
+              <div class="size-filter-buttons mt-2" id="detailSizesBox">
+                {% for sz in sizes %}
+                  {% if sz.stock > 0 %}
+                    <button type="button" 
+                      class="size-filter-btn detail-size-btn {% if sz.size == 'M' %}active{% endif %}"
+                      onclick="selectDetailSize(this, '{{ sz.size }}')"
+                      id="detailSizeBtn{{ sz.size }}">
+                      {{ sz.size }}
+                    </button>
+                  {% else %}
+                    <button type="button" class="size-filter-btn detail-size-btn disabled text-muted" style="cursor: not-allowed; opacity: 0.4;" title="Out of Stock">
+                      {{ sz.size }}
+                    </button>
+                  {% endif %}
+                {% empty %}
+                  <p class="text-danger small">No sizes found for this product.</p>
+                {% endfor %}
+              </div>
+              <!-- Hidden Size Input -->
+              <input type="hidden" name="size" id="sizeInput" value="M">
+            </div>
+
+            <!-- Quantity Selector & Action -->
+            <div class="row g-3 align-items-end mb-4">
+              <div class="col-sm-4 col-12">
+                <div class="detail-qty-title">Quantity</div>
+                <div class="detail-qty-box mt-2">
+                  <button type="button" class="detail-qty-btn" id="qtyMinus"><i class="fa-solid fa-minus fs-xs"></i></button>
+                  <input type="number" class="detail-qty-input" id="qtyInput" value="1" min="1" max="10">
+                  <button type="button" class="detail-qty-btn" id="qtyPlus"><i class="fa-solid fa-plus fs-xs"></i></button>
+                </div>
+                <!-- Hidden Qty Input -->
+                <input type="hidden" name="quantity" id="qtyFormInput" value="1">
+              </div>
+              <div class="col-sm-8 col-12">
+                <button type="submit" class="btn-add-to-cart" id="addToCartBtn">
+                  <i class="fa-solid fa-bag-shopping me-2"></i>Add to Cart
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <!-- Core Brand Promises -->
+          <div class="detail-features" id="detailFeatures">
+            <div class="feature-item">
+              <i class="fa-solid fa-truck-fast feature-icon"></i>
+              <div class="feature-text">Free Shipping above ₹999</div>
+            </div>
+            <div class="feature-item">
+              <i class="fa-solid fa-rotate-left feature-icon"></i>
+              <div class="feature-text">14-Day Easy Returns</div>
+            </div>
+            <div class="feature-item">
+              <i class="fa-solid fa-shield-halved feature-icon"></i>
+              <div class="feature-text">100% Secure Checkout</div>
+            </div>
+            <div class="feature-item">
+              <i class="fa-solid fa-seedling feature-icon"></i>
+              <div class="feature-text">Ethically Sourced Materials</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Related Products -->
+    {% if related_products %}
+    <div class="related-products-section mt-5 pt-5 border-top" id="relatedProducts">
+      <div class="section-header mb-5">
+        <span class="section-eyebrow">Complete the Look</span>
+        <h2 class="section-title">Related Pieces</h2>
+      </div>
+      <div class="row g-4">
+        {% for prod in related_products %}
+        <div class="col-lg-3 col-md-6 col-6">
+          <div class="product-card" id="related{{ prod.id }}">
+            <a href="{% url 'products:detail' prod.slug %}" class="product-card-link">
+              <div class="card-img-wrapper">
+                {% if prod.primary_image %}
+                  <img src="{{ prod.primary_image.get_image_url }}" alt="{{ prod.name }}" loading="lazy">
+                {% else %}
+                  <img src="{% static 'img/products/casual-stripe-shirt-fit.jpg' %}" alt="{{ prod.name }}" loading="lazy">
+                {% endif %}
+              </div>
+              <div class="product-info">
+                <span class="product-category">{{ prod.category.name }}</span>
+                <h3 class="product-name">{{ prod.name }}</h3>
+                <div class="product-price">
+                  {% if prod.is_on_sale %}
+                    <span class="price-sale">₹{{ prod.sale_price }}</span>
+                    <span class="price-original">₹{{ prod.price }}</span>
+                  {% else %}
+                    <span class="price-regular">₹{{ prod.price }}</span>
+                  {% endif %}
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Size Guide Modal -->
+<div class="modal fade" id="sizeChartModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-0 border-0">
+      <div class="modal-header border-0 bg-dark text-white rounded-0">
+        <h5 class="modal-title font-title">Size Guide</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4">
+        <p class="text-muted small mb-4">All measurements are in inches. Standard regular fit sizing.</p>
+        <table class="table table-bordered text-center align-middle font-body">
+          <thead class="table-light">
+            <tr>
+              <th>Size</th>
+              <th>Chest</th>
+              <th>Waist</th>
+              <th>Hips</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>XS</strong></td>
+              <td>32"</td>
+              <td>25"</td>
+              <td>35"</td>
+            </tr>
+            <tr>
+              <td><strong>S</strong></td>
+              <td>34"</td>
+              <td>27"</td>
+              <td>37"</td>
+            </tr>
+            <tr>
+              <td><strong>M</strong></td>
+              <td>36"</td>
+              <td>29"</td>
+              <td>39"</td>
+            </tr>
+            <tr>
+              <td><strong>L</strong></td>
+              <td>38"</td>
+              <td>31"</td>
+              <td>41"</td>
+            </tr>
+            <tr>
+              <td><strong>XL</strong></td>
+              <td>40"</td>
+              <td>33"</td>
+              <td>43"</td>
+            </tr>
+            <tr>
+              <td><strong>XXL</strong></td>
+              <td>42"</td>
+              <td>35"</td>
+              <td>45"</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

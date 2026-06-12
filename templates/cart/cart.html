@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Your Cart — AUREN Fashion{% endblock %}
+{% block meta_description %}Review your selected AUREN Fashion pieces. Free shipping over ₹999.{% endblock %}
+
+{% block content %}
+<div class="cart-page py-5 mt-5">
+  <div class="container">
+    <!-- Page Header -->
+    <div class="shop-header mb-5 fade-in">
+      <h1 class="shop-title">Shopping Bag</h1>
+      <p class="shop-subtitle">
+        {% if cart and cart.item_count > 0 %}
+          {{ cart.item_count }} piece{% if cart.item_count != 1 %}s{% endif %} selected with intention
+        {% else %}
+          Your bag is empty
+        {% endif %}
+      </p>
+    </div>
+
+    {% if cart and cart.items.all %}
+    <div class="row g-5">
+      <!-- Left Column: Items Table -->
+      <div class="col-lg-8 fade-in delay-1">
+        <div class="cart-table-wrapper" id="cartTableWrapper">
+          <div class="table-responsive">
+            <table class="table cart-table align-middle">
+              <thead>
+                <tr>
+                  <th scope="col" style="width: 50%;">Product</th>
+                  <th scope="col" class="text-center" style="width: 20%;">Quantity</th>
+                  <th scope="col" class="text-end" style="width: 20%;">Total</th>
+                  <th scope="col" class="text-center" style="width: 10%;"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in cart.items.all %}
+                <tr id="cartItemRow{{ item.id }}" class="fade-in {% if forloop.counter <= 5 %}delay-{{ forloop.counter }}{% else %}delay-5{% endif %}">
+                  <td>
+                    <div class="d-flex align-items-center gap-3">
+                      <!-- Image -->
+                      <a href="{% url 'products:detail' item.product.slug %}">
+                        {% if item.product.primary_image %}
+                          <img src="{{ item.product.primary_image.get_image_url }}" alt="{{ item.product.name }}" class="cart-product-img">
+                        {% else %}
+                          <img src="{% static 'img/products/casual-stripe-shirt-fit.jpg' %}" alt="{{ item.product.name }}" class="cart-product-img">
+                        {% endif %}
+                      </a>
+                      
+                      <!-- Details -->
+                      <div>
+                        <a href="{% url 'products:detail' item.product.slug %}" class="cart-product-name">{{ item.product.name }}</a>
+                        <div class="cart-product-meta">
+                          <span>Size: <strong>{{ item.size }}</strong></span>
+                          <span class="mx-2">|</span>
+                          <span>Price: <strong>₹{{ item.product.display_price }}</strong></span>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  
+                  <!-- Quantity Update Form -->
+                  <td>
+                    <div class="d-flex justify-content-center">
+                      <form method="post" action="{% url 'cart:update_cart' item.id %}" class="d-flex align-items-center border" style="width: 110px;">
+                        {% csrf_token %}
+                        <button type="submit" name="quantity" value="{{ item.quantity|add:'-1' }}" class="detail-qty-btn border-0" id="btnDecr{{ item.id }}">
+                          <i class="fa-solid fa-minus fs-xs"></i>
+                        </button>
+                        <input type="text" readonly class="detail-qty-input border-0 bg-transparent text-center flex-grow-1" value="{{ item.quantity }}" style="width: 30px;">
+                        <button type="submit" name="quantity" value="{{ item.quantity|add:'1' }}" class="detail-qty-btn border-0" id="btnIncr{{ item.id }}">
+                          <i class="fa-solid fa-plus fs-xs"></i>
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                  
+                  <!-- Subtotal -->
+                  <td class="text-end fw-semibold text-dark">
+                    ₹{{ item.subtotal }}
+                  </td>
+                  
+                  <!-- Remove Action -->
+                  <td class="text-center">
+                    <form method="post" action="{% url 'cart:remove_cart' item.id %}">
+                      {% csrf_token %}
+                      <button type="submit" class="cart-btn-remove" title="Remove Item" id="btnRemove{{ item.id }}">
+                        <i class="fa-regular fa-trash-can"></i>
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Back to shop link -->
+        <a href="{% url 'products:shop' %}" class="section-link d-inline-block mt-4" id="continueShopping">
+          <i class="fa-solid fa-arrow-left me-2"></i>Continue Shopping
+        </a>
+      </div>
+
+      <!-- Right Column: Order Summary -->
+      <div class="col-lg-4 fade-in delay-2">
+        <div class="cart-summary-card" id="cartSummary">
+          <h2 class="summary-title">Summary</h2>
+          
+          <div class="summary-row">
+            <span class="text-muted">Subtotal</span>
+            <span class="fw-semibold text-dark">₹{{ cart.total }}</span>
+          </div>
+
+          <div class="summary-row">
+            <span class="text-muted">Delivery</span>
+            <span class="fw-semibold text-dark">
+              {% if cart.total >= 999 %}
+                <span class="text-success uppercase tracking-wider text-xs">FREE</span>
+              {% else %}
+                ₹99
+              {% endif %}
+            </span>
+          </div>
+          
+          {% if cart.total < 999 %}
+          <div class="alert alert-warning p-2 mt-3 rounded-0 border-0 fs-xs" style="background-color: #FFFDF5; font-size: 0.8rem; color: var(--naina-dark);">
+            <i class="fa-solid fa-circle-info me-1"></i> Add more intentional pieces to your bag to unlock <strong>FREE Delivery</strong>! (Free delivery on orders over ₹999)
+          </div>
+          {% endif %}
+
+          <div class="summary-row summary-total">
+            <span>Total</span>
+            <span>
+              {% if cart.total >= 999 %}
+                ₹{{ cart.total }}
+              {% else %}
+                ₹{{ cart.total|add:99 }}
+              {% endif %}
+            </span>
+          </div>
+
+          <a href="{% url 'orders:checkout' %}" class="btn-checkout" id="checkoutBtn">
+            Proceed to Checkout
+          </a>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="empty-state text-center py-6 fade-in" id="emptyCart">
+      <div class="empty-icon mb-4"><i class="fa-solid fa-bag-shopping"></i></div>
+      <h3 class="empty-title">Your Bag is Empty</h3>
+      <p class="empty-text">Fill it with pieces designed with minimal styling and high-quality materials.</p>
+      <a href="{% url 'products:shop' %}" class="btn-dark-custom mt-4" id="emptyCartShopBtn">Start Shopping</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

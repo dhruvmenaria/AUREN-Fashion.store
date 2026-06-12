@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shop — AUREN Fashion{% endblock %}
+{% block meta_description %}Browse AUREN Fashion's complete collection. Filter by category, size, and price. Free delivery over ₹999.{% endblock %}
+
+{% block content %}
+<div class="shop-page py-5 mt-5">
+  <div class="container">
+    <!-- Page Header -->
+    <div class="shop-header mb-5">
+      <h1 class="shop-title">The Collection</h1>
+      <p class="shop-subtitle">{{ total_count }} piece{% if total_count != 1 %}s{% endif %} crafted for you</p>
+    </div>
+
+    <div class="row">
+      <!-- SIDEBAR FILTERS -->
+      <div class="col-lg-3">
+        <div class="filter-sidebar" id="filterSidebar">
+          <div class="filter-header d-flex justify-content-between align-items-center mb-4">
+            <h5 class="filter-title mb-0">Filters</h5>
+            <a href="{% url 'products:shop' %}" class="filter-clear-all">Clear All</a>
+          </div>
+
+          <form method="GET" action="{% url 'products:shop' %}" id="filterForm">
+            <!-- Category Filter -->
+            <div class="filter-group mb-4">
+              <h6 class="filter-group-title">Category</h6>
+              {% for cat in categories %}
+              <div class="form-check filter-check">
+                <input class="form-check-input" type="checkbox" name="category" value="{{ cat.slug }}"
+                  id="cat{{ cat.id }}"
+                  {% if cat.slug in selected_categories %}checked{% endif %}>
+                <label class="form-check-label" for="cat{{ cat.id }}">
+                  {{ cat.name }}
+                  <span class="filter-count">({{ cat.products.count }})</span>
+                </label>
+              </div>
+              {% endfor %}
+            </div>
+
+            <!-- Price Range -->
+            <div class="filter-group mb-4">
+              <h6 class="filter-group-title">Price Range</h6>
+              <div class="price-range-display">
+                ₹<span id="minPriceDisplay">{{ min_price }}</span> — ₹<span id="maxPriceDisplay">{{ max_price }}</span>
+              </div>
+              <input type="range" class="form-range price-range-slider" id="maxPriceRange"
+                name="max_price" min="0" max="10000" step="100" value="{{ max_price }}"
+                oninput="document.getElementById('maxPriceDisplay').textContent=this.value">
+              <input type="hidden" name="min_price" value="{{ min_price }}">
+            </div>
+
+            <!-- Size Filter -->
+            <div class="filter-group mb-4">
+              <h6 class="filter-group-title">Size</h6>
+              <div class="size-filter-buttons">
+                {% for size in all_sizes %}
+                <button type="button"
+                  class="size-filter-btn {% if size in selected_sizes %}active{% endif %}"
+                  onclick="toggleSizeFilter(this, '{{ size }}')"
+                  id="sizeBtn{{ size }}">
+                  {{ size }}
+                </button>
+                {% endfor %}
+              </div>
+              {% for size in all_sizes %}
+              <input type="checkbox" name="size" value="{{ size }}" id="sizeHidden{{ size }}"
+                class="size-hidden-input d-none"
+                {% if size in selected_sizes %}checked{% endif %}>
+              {% endfor %}
+            </div>
+
+            <!-- Sort (hidden in sidebar, shown in header) -->
+            <input type="hidden" name="sort" id="sortInput" value="{{ sort }}">
+
+            <button type="submit" class="btn-apply-filters w-100" id="applyFilters">Apply Filters</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- PRODUCT GRID -->
+      <div class="col-lg-9">
+        <!-- Sort Bar -->
+        <div class="shop-sort-bar d-flex justify-content-between align-items-center mb-4">
+          <span class="products-count">Showing {{ products|length }} of {{ total_count }} products</span>
+          <div class="sort-dropdown">
+            <select class="form-select sort-select" onchange="handleSort(this.value)" id="sortSelect">
+              <option value="latest" {% if sort == 'latest' %}selected{% endif %}>Latest</option>
+              <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+              <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Products -->
+        {% if products %}
+        <!-- Stacking Cards for first 4 Products -->
+        <div class="stacking-cards-container">
+          {% for product in products|slice:":4" %}
+          <div class="stacking-card-wrapper" style="z-index: {{ forloop.counter }};">
+            <div class="stacking-card">
+              <div class="stacking-card-inner">
+                <!-- Product image left -->
+                <div class="stacking-card-image">
+                  {% if product.primary_image %}
+                    <img src="{{ product.primary_image.get_image_url }}" alt="{{ product.name }}">
+                  {% else %}
+                    <img src="{% static 'img/products/casual-stripe-shirt-fit.jpg' %}" alt="{{ product.name }}">
+                  {% endif %}
+                </div>
+                <!-- Product info right -->
+                <div class="stacking-card-info">
+                  <span class="stacking-card-number">0{{ forloop.counter }}</span>
+                  <span class="stacking-card-category">{{ product.category.name }}</span>
+                  <h3 class="stacking-card-name">{{ product.name }}</h3>
+                  <div class="stacking-card-price">
+                    {% if product.is_on_sale %}
+                      <span class="price-sale">₹{{ product.sale_price }}</span>
+                      <span class="price-original">₹{{ product.price }}</span>
+                    {% else %}
+                      <span class="price-regular">₹{{ product.price }}</span>
+                    {% endif %}
+                  </div>
+                  <a href="{% url 'products:detail' product.slug %}" class="btn-stacking-view">View Product →</a>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- Standard Responsive Grid for Remaining Products -->
+        <div class="row g-4" id="productsGrid">
+          {% for product in products|slice:"4:" %}
+          <div class="col-md-4 col-6 fade-in delay-{% if forloop.counter == 1 %}1{% elif forloop.counter == 2 %}2{% elif forloop.counter == 3 %}3{% else %}4{% endif %}">
+            <div class="product-card" id="shopProd{{ product.id }}">
+              <a href="{% url 'products:detail' product.slug %}" class="product-card-link">
+                <div class="card-img-wrapper">
+                  {% if product.primary_image %}
+                    <img src="{{ product.primary_image.get_image_url }}" alt="{{ product.name }}" loading="lazy">
+                  {% else %}
+                    <img src="{% static 'img/products/casual-stripe-shirt-fit.jpg' %}" alt="{{ product.name }}" loading="lazy">
+                  {% endif %}
+                  <div class="product-badges">
+                    {% if product.is_new %}<span class="badge-new">NEW</span>{% endif %}
+                    {% if product.is_on_sale %}<span class="badge-sale">SALE</span>{% endif %}
+                  </div>
+                  <div class="product-hover-actions">
+                    <form method="post" action="{% url 'cart:add_to_cart' product.id %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="size" value="M">
+                      <input type="hidden" name="quantity" value="1">
+                      <button type="submit" class="btn-quick-add">
+                        <i class="fa-solid fa-bag-shopping me-2"></i>Quick Add
+                      </button>
+                    </form>
+                  </div>
+                </div>
+                <div class="product-info">
+                  <span class="product-category">{{ product.category.name }}</span>
+                  <h3 class="product-name">{{ product.name }}</h3>
+                  <div class="product-price">
+                    {% if product.is_on_sale %}
+                      <span class="price-sale">₹{{ product.sale_price }}</span>
+                      <span class="price-original">₹{{ product.price }}</span>
+                    {% else %}
+                      <span class="price-regular">₹{{ product.price }}</span>
+                    {% endif %}
+                  </div>
+                </div>
+              </a>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if products.has_other_pages %}
+        <nav class="mt-5" aria-label="Products pagination">
+          <ul class="pagination-custom">
+            {% if products.has_previous %}
+              <li><a href="?page={{ products.previous_page_number }}&sort={{ sort }}" class="page-link-custom" id="pagePrev">← Prev</a></li>
+            {% endif %}
+            {% for num in products.paginator.page_range %}
+              {% if products.number == num %}
+                <li><span class="page-link-custom active">{{ num }}</span></li>
+              {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+                <li><a href="?page={{ num }}&sort={{ sort }}" class="page-link-custom" id="page{{ num }}">{{ num }}</a></li>
+              {% endif %}
+            {% endfor %}
+            {% if products.has_next %}
+              <li><a href="?page={{ products.next_page_number }}&sort={{ sort }}" class="page-link-custom" id="pageNext">Next →</a></li>
+            {% endif %}
+          </ul>
+        </nav>
+        {% endif %}
+
+        {% else %}
+        <div class="empty-state text-center py-6">
+          <div class="empty-icon mb-4"><i class="fa-regular fa-face-sad-tear"></i></div>
+          <h3 class="empty-title">No products found</h3>
+          <p class="empty-text">Try adjusting your filters or browse our full collection.</p>
+          <a href="{% url 'products:shop' %}" class="btn-dark-custom mt-3" id="clearFiltersBtn">Clear Filters</a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

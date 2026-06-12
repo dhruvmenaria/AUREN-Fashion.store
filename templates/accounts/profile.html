@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Profile — AUREN Fashion{% endblock %}
+{% block meta_description %}Manage your AUREN Fashion account, view shipping information, and track past order history.{% endblock %}
+
+{% block content %}
+<div class="profile-page py-5 mt-5">
+  <div class="container">
+    
+    <!-- Profile Banner -->
+    <div class="profile-banner mb-5" id="profileBanner">
+      <div class="d-flex align-items-center gap-4">
+        <div class="profile-avatar-lg">
+          {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+        </div>
+        <div>
+          <h1 class="font-title m-0 text-white" style="font-size: 2.2rem; font-weight: 500;">
+            Hello, {{ user.first_name|default:user.email }}
+          </h1>
+          <p class="text-muted m-0 small mt-1">Member since {{ user.date_joined|date:"F Y" }}</p>
+        </div>
+      </div>
+      
+      <div>
+        <form method="post" action="{% url 'accounts:logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-outline-light rounded-0 font-body px-4 text-uppercase tracking-wider fs-xs" style="font-size: 0.8rem; border-color: rgba(255,255,255,0.2);">
+            Logout
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div class="row g-5">
+      <!-- Left Column: Personal Information -->
+      <div class="col-lg-4">
+        <div class="profile-card" id="profileInfoCard">
+          <h3 class="profile-tab-title">Personal Details</h3>
+          
+          <div class="profile-info-item">
+            <span class="profile-info-label">Full Name</span>
+            <div class="profile-info-val">{{ user.get_full_name|default:"Not Provided" }}</div>
+          </div>
+          
+          <div class="profile-info-item">
+            <span class="profile-info-label">Email Address</span>
+            <div class="profile-info-val">{{ user.email }}</div>
+          </div>
+
+          <div class="profile-info-item">
+            <span class="profile-info-label">Default Shipping Location</span>
+            <div class="profile-info-val text-muted small">
+              {% if orders.first %}
+                {{ orders.first.address }}<br>
+                {{ orders.first.city }} - {{ orders.first.pincode }}, {{ orders.first.state }}
+              {% else %}
+                No shipping address saved yet. Make your first purchase to save delivery details.
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Order History -->
+      <div class="col-lg-8">
+        <div class="order-history-section">
+          <h3 class="profile-tab-title">Order History</h3>
+
+          {% if orders %}
+            <div class="order-list" id="orderHistoryList">
+              {% for order in orders %}
+              <div class="order-history-card" id="orderCard{{ order.id }}">
+                <!-- Header: Number, Date, Status -->
+                <div class="order-header">
+                  <div>
+                    <span class="order-no d-block font-body">{{ order.order_number }}</span>
+                    <span class="order-date">{{ order.created_at|date:"F d, Y — H:i" }}</span>
+                  </div>
+                  
+                  <span class="badge badge-status {{ order.get_status_badge_class }}">
+                    {{ order.get_status_display }}
+                  </span>
+                </div>
+
+                <!-- Body: Order Items list -->
+                <div class="order-detail-items mb-3">
+                  <span class="text-muted d-block small uppercase tracking-wider mb-2">Items</span>
+                  {% for item in order.items.all %}
+                  <div class="d-flex justify-content-between text-dark py-1" style="font-size: 0.9rem;">
+                    <span>{{ item.product_name }} <span class="text-muted">({{ item.size }})</span> &times; {{ item.quantity }}</span>
+                    <span>₹{{ item.subtotal }}</span>
+                  </div>
+                  {% endfor %}
+                </div>
+
+                <!-- Footer: Pricing Details -->
+                <div class="order-footer">
+                  <span class="order-total-lbl">Total Paid</span>
+                  <span class="order-total-val">₹{{ order.total_amount }}</span>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <!-- Empty Order State -->
+            <div class="empty-state text-center py-5 border" style="background-color: white;" id="emptyOrders">
+              <div class="empty-icon mb-3"><i class="fa-solid fa-box-open"></i></div>
+              <h4 class="font-body fw-semibold text-dark">No Orders Yet</h4>
+              <p class="text-muted small">You haven't made any purchases yet. Your curated story starts here.</p>
+              <a href="{% url 'products:shop' %}" class="btn-dark-custom btn-sm mt-3" id="emptyProfileShopBtn">Discover Pieces</a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

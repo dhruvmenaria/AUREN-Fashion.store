@@ -1,0 +1,53 @@
+<footer class="site-footer">
+  <div class="container">
+    <div class="row g-5">
+      <!-- Brand Column -->
+      <div class="col-lg-3 col-md-6">
+        <h5 class="footer-brand">AUREN Fashion</h5>
+        <p class="footer-tagline">Wear the Story</p>
+        <p class="footer-desc">Premium fashion crafted with intention. Minimal by design, powerful by nature.</p>
+      </div>
+
+      <!-- Shop Column -->
+      <div class="col-lg-3 col-md-6">
+        <h6 class="footer-col-title">Shop</h6>
+        <a href="{% url 'products:shop' %}" class="footer-link">All Products</a>
+        <a href="{% url 'products:shop' %}?sort=latest" class="footer-link">New Arrivals</a>
+        <a href="{% url 'products:shop' %}?category=dresses" class="footer-link">Dresses</a>
+        <a href="{% url 'products:shop' %}?category=tops" class="footer-link">Tops</a>
+        <a href="{% url 'products:shop' %}?category=outerwear" class="footer-link">Outerwear</a>
+      </div>
+
+      <!-- Help Column -->
+      <div class="col-lg-3 col-md-6">
+        <h6 class="footer-col-title">Help</h6>
+        <a href="#" class="footer-link">Size Guide</a>
+        <a href="#" class="footer-link">Shipping Info</a>
+        <a href="#" class="footer-link">Returns &amp; Exchanges</a>
+        <a href="#" class="footer-link">Contact Us</a>
+        <a href="#" class="footer-link">FAQ</a>
+      </div>
+
+      <!-- Follow Column -->
+      <div class="col-lg-3 col-md-6">
+        <h6 class="footer-col-title">Follow Us</h6>
+        <div class="d-flex gap-3 mb-3">
+          <a href="#" class="footer-social-link"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#" class="footer-social-link"><i class="fa-brands fa-pinterest"></i></a>
+          <a href="#" class="footer-social-link"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="#" class="footer-social-link"><i class="fa-brands fa-x-twitter"></i></a>
+        </div>
+        <p class="footer-desc" style="font-size:0.78rem;">Follow @aurenfashion for daily style inspiration.</p>
+      </div>
+    </div>
+
+    <div class="footer-bottom d-flex flex-wrap justify-content-between align-items-center">
+      <p class="footer-copyright mb-0">© 2025 AUREN Fashion. All rights reserved.</p>
+      <span style="color: var(--naina-text-muted); font-size: 1.3rem;">
+        <i class="fa-brands fa-cc-visa me-2"></i>
+        <i class="fa-brands fa-cc-mastercard me-2"></i>
+        <i class="fa-brands fa-cc-rupay"></i>
+      </span>
+    </div>
+  </div>
+</footer>

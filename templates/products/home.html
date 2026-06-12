@@ -1,0 +1,306 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AUREN Fashion — Wear the Story{% endblock %}
+{% block meta_description %}Discover AUREN Fashion — premium dark luxury clothing. Minimal by design, powerful by nature. New arrivals every season.{% endblock %}
+
+{% block content %}
+
+<!-- ═══ HERO ═══ -->
+<section class="hero-section" id="hero">
+  <div class="hero-inner">
+    <!-- Left: Copy -->
+    <div class="container d-flex align-items-center" style="padding: 5rem 2rem;">
+      <div class="fade-in">
+        <span class="hero-eyebrow">New Season · 2026 Collection</span>
+        <h1 class="hero-gradient-text">AUREN<br>FASHION</h1>
+        <p class="hero-subtitle">
+          Modern silhouettes, honest fabrics, and intentional design.<br>
+          For those who choose simplicity and quality.
+        </p>
+        <div class="hero-actions">
+          <a href="{% url 'products:shop' %}" class="btn-hero-primary" id="heroShopNow">
+            Shop Collection
+          </a>
+          <a href="#lookbook" class="btn-hero-secondary">
+            Our Story
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Image -->
+    <div class="hero-image fade-in delay-2">
+      <div class="hero-img-wrapper">
+        <img
+          src="{% static 'img/products/black-long-coat-outfit.jpg' %}"
+          alt="AUREN Fashion — Luxury Collection"
+          class="hero-main-img"
+          id="heroMainImage"
+        >
+        <span class="hero-img-badge">New Arrival</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ MARQUEE ═══ -->
+<div class="marquee-section">
+  <div class="marquee-track">
+    <div class="marquee-content" id="marqueeContent">
+      <span class="marquee-item">Dark Luxury</span>
+      <span class="marquee-separator">✦</span>
+      <span class="marquee-item">New Arrivals</span>
+      <span class="marquee-separator">✦</span>
+      <span class="marquee-item">Premium Fabrics</span>
+      <span class="marquee-separator">✦</span>
+      <span class="marquee-item">Minimal Design</span>
+      <span class="marquee-separator">✦</span>
+      <span class="marquee-item">Outerwear</span>
+      <span class="marquee-separator">✦</span>
+      <span class="marquee-item">Statement Silhouettes</span>
+      <span class="marquee-separator">✦</span>
+      <span class="marquee-item">AUREN Fashion 2026</span>
+      <span class="marquee-separator">✦</span>
+      <span class="marquee-item">Ethically Made</span>
+      <span class="marquee-separator">✦</span>
+      <span class="marquee-item">Dark Luxury</span>
+      <span class="marquee-separator">✦</span>
+      <span class="marquee-item">New Arrivals</span>
+      <span class="marquee-separator">✦</span>
+      <span class="marquee-item">Premium Fabrics</span>
+      <span class="marquee-separator">✦</span>
+      <span class="marquee-item">Minimal Design</span>
+      <span class="marquee-separator">✦</span>
+      <span class="marquee-item">Outerwear</span>
+      <span class="marquee-separator">✦</span>
+      <span class="marquee-item">Statement Silhouettes</span>
+      <span class="marquee-separator">✦</span>
+      <span class="marquee-item">AUREN Fashion 2026</span>
+      <span class="marquee-separator">✦</span>
+      <span class="marquee-item">Ethically Made</span>
+      <span class="marquee-separator">✦</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CATEGORIES ═══ -->
+<section class="categories-section" id="categories">
+  <div class="container">
+    <div class="section-header d-flex justify-content-between align-items-end fade-in">
+      <div>
+        <span class="section-eyebrow">Browse</span>
+        <h2 class="section-title mb-0">Collections</h2>
+      </div>
+      <a href="{% url 'products:shop' %}" class="section-link">View All <i class="fa-solid fa-arrow-right ms-1"></i></a>
+    </div>
+    <div class="categories-scroll">
+      {% for category in categories %}
+      {% with cat_slug=category.slug %}
+      <a href="{% url 'products:shop' %}?category={{ category.slug }}" class="category-card-link fade-in delay-{% if forloop.counter > 5 %}5{% else %}{{ forloop.counter }}{% endif %}" id="cat{{ category.id }}">
+        <div class="category-card">
+          <div class="category-img-wrap">
+            {% if cat_slug == 'tops' %}
+              <img src="{% static 'img/products/ribbed-polo-shirts.jpg' %}" alt="{{ category.name }}">
+            {% elif cat_slug == 'bottoms' %}
+              <img src="{% static 'img/products/casual-stripe-shirt-fit.jpg' %}" alt="{{ category.name }}">
+            {% elif cat_slug == 'dresses' %}
+              <img src="{% static 'img/products/black-long-coat-outfit.jpg' %}" alt="{{ category.name }}">
+            {% elif cat_slug == 'outerwear' %}
+              <img src="{% static 'img/products/old-money-leather-jacket.jpg' %}" alt="{{ category.name }}">
+            {% elif cat_slug == 'accessories' %}
+              <img src="{% static 'img/products/black-luxe-accessories.jpg' %}" alt="{{ category.name }}">
+            {% else %}
+              <img src="{% static 'img/products/casual-stripe-shirt-fit.jpg' %}" alt="{{ category.name }}">
+            {% endif %}
+          </div>
+          <div class="category-overlay">
+            <span class="category-name">{{ category.name }}</span>
+          </div>
+        </div>
+      </a>
+      {% endwith %}
+      {% empty %}
+      <p class="text-muted">No categories found.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FEATURED PRODUCTS — New Arrivals ═══ -->
+<section class="products-section bg-beige" id="featured">
+  <div class="container">
+    <div class="section-header d-flex justify-content-between align-items-end fade-in">
+      <div>
+        <span class="section-eyebrow">Just Landed</span>
+        <h2 class="section-title mb-0">New Collection</h2>
+      </div>
+      <a href="{% url 'products:shop' %}" class="section-link">Shop All <i class="fa-solid fa-arrow-right ms-1"></i></a>
+    </div>
+    <div class="row g-4">
+      {% for product in new_arrivals %}
+      <div class="col-lg-3 col-md-6 fade-in delay-{% if forloop.counter == 1 or forloop.counter == 5 %}1{% elif forloop.counter == 2 or forloop.counter == 6 %}2{% elif forloop.counter == 3 or forloop.counter == 7 %}3{% else %}4{% endif %}">
+        <div class="product-card" id="prod{{ product.id }}">
+          <a href="{% url 'products:detail' product.slug %}" class="product-card-link">
+            <div class="card-img-wrapper">
+              {% if product.primary_image %}
+                <img src="{{ product.primary_image.get_image_url }}" alt="{{ product.name }}" loading="lazy">
+              {% else %}
+                <img src="{% static 'img/products/casual-stripe-shirt-fit.jpg' %}" alt="{{ product.name }}" loading="lazy">
+              {% endif %}
+              <div class="product-badges">
+                {% if product.is_new %}<span class="badge-new">NEW</span>{% endif %}
+                {% if product.is_on_sale %}<span class="badge-sale">SALE</span>{% endif %}
+              </div>
+              <div class="product-hover-actions">
+                <form method="post" action="{% url 'cart:add_to_cart' product.id %}" class="quick-add-form">
+                  {% csrf_token %}
+                  <input type="hidden" name="size" value="M">
+                  <input type="hidden" name="quantity" value="1">
+                  <input type="hidden" name="next" value="{% url 'products:home' %}">
+                  <button type="submit" class="btn-quick-add">
+                    <i class="fa-solid fa-bag-shopping me-2"></i>Quick Add
+                  </button>
+                </form>
+              </div>
+            </div>
+            <div class="product-info">
+              <span class="product-category">{{ product.category.name }}</span>
+              <h3 class="product-name">{{ product.name }}</h3>
+              <div class="product-price">
+                {% if product.is_on_sale %}
+                  <span class="price-sale">₹{{ product.sale_price }}</span>
+                  <span class="price-original">₹{{ product.price }}</span>
+                {% else %}
+                  <span class="price-regular">₹{{ product.price }}</span>
+                {% endif %}
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12 text-center py-5">
+        <p style="color: var(--naina-text-muted);">No products yet. Run <code>python manage.py seed_data</code></p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ═══ BRAND STORY ═══ -->
+<section class="brand-story-section" id="lookbook">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6">
+        <div class="brand-story-img-wrapper fade-in-left">
+          <img src="{% static 'img/products/casual-stripe-shirt-fit.jpg' %}" alt="AUREN Fashion Lookbook" class="brand-story-img">
+          <div class="brand-story-img-accent">
+            <img src="{% static 'img/products/old-money-leather-jacket.jpg' %}" alt="AUREN Fashion Leather Jacket Detail">
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="brand-story-content ps-lg-4 fade-in-right">
+          <span class="section-eyebrow">Our Story</span>
+          <h2 class="section-title mb-4">Wear the<br><em>Story.</em></h2>
+          <p class="brand-story-text" data-char-reveal>
+            AUREN Fashion is built for those who understand that true luxury is restraint — clean cuts, honest fabrics, and designs that outlast trends.
+          </p>
+          <p class="brand-story-text mt-3">
+            Every piece is crafted to move with you — from quiet confidence in a boardroom to effortless presence after dark.
+          </p>
+          <div class="brand-story-stats mt-5">
+            <div class="stat-item">
+              <span class="stat-number">500+</span>
+              <span class="stat-label">Styles Created</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">10K+</span>
+              <span class="stat-label">Happy Customers</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">100%</span>
+              <span class="stat-label">Ethically Made</span>
+            </div>
+          </div>
+          <a href="{% url 'products:shop' %}" class="btn-brand-story mt-5">Explore the Collection</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FEATURED ITEMS (2nd grid) ═══ -->
+{% if featured_products %}
+<section class="products-section" id="featured2">
+  <div class="container">
+    <div class="section-header d-flex justify-content-between align-items-end fade-in">
+      <div>
+        <span class="section-eyebrow">Most Wanted</span>
+        <h2 class="section-title mb-0">Curated Edit</h2>
+      </div>
+      <a href="{% url 'products:shop' %}" class="section-link">Shop All <i class="fa-solid fa-arrow-right ms-1"></i></a>
+    </div>
+    <div class="row g-4">
+      {% for product in featured_products|slice:":4" %}
+      <div class="col-lg-3 col-md-6 fade-in delay-{% if forloop.counter == 1 %}1{% elif forloop.counter == 2 %}2{% elif forloop.counter == 3 %}3{% else %}4{% endif %}">
+        <div class="product-card" id="featured{{ product.id }}">
+          <a href="{% url 'products:detail' product.slug %}" class="product-card-link">
+            <div class="card-img-wrapper">
+              {% if product.primary_image %}
+                <img src="{{ product.primary_image.get_image_url }}" alt="{{ product.name }}" loading="lazy">
+              {% else %}
+                <img src="{% static 'img/products/casual-stripe-shirt-fit.jpg' %}" alt="{{ product.name }}" loading="lazy">
+              {% endif %}
+              <div class="product-badges">
+                {% if product.is_new %}<span class="badge-new">NEW</span>{% endif %}
+                {% if product.is_on_sale %}<span class="badge-sale">SALE</span>{% endif %}
+              </div>
+            </div>
+            <div class="product-info">
+              <span class="product-category">{{ product.category.name }}</span>
+              <h3 class="product-name">{{ product.name }}</h3>
+              <div class="product-price">
+                {% if product.is_on_sale %}
+                  <span class="price-sale">₹{{ product.sale_price }}</span>
+                  <span class="price-original">₹{{ product.price }}</span>
+                {% else %}
+                  <span class="price-regular">₹{{ product.price }}</span>
+                {% endif %}
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ═══ NEWSLETTER ═══ -->
+<section class="newsletter-section">
+  <div class="container">
+    <div class="newsletter-card fade-in">
+      <div class="row align-items-center">
+        <div class="col-lg-6 mb-4 mb-lg-0">
+          <span class="section-eyebrow">Stay Connected</span>
+          <h2 class="newsletter-title">First to know,<br>first to wear.</h2>
+          <p class="newsletter-subtitle">New drops, exclusive edits, and styling notes before they hit the feed.</p>
+        </div>
+        <div class="col-lg-6">
+          <form class="newsletter-form" id="newsletterForm" onsubmit="handleNewsletterSubmit(event)">
+            <div class="newsletter-input-group">
+              <input type="email" class="newsletter-input" placeholder="Your email address" required id="newsletterEmail">
+              <button type="submit" class="newsletter-btn" id="newsletterSubmit">Subscribe</button>
+            </div>
+            <p class="newsletter-privacy">No spam, ever. Unsubscribe any time.</p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
